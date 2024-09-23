@@ -3,10 +3,10 @@ name: Cypress Tests
 on:
   push:
     branches:
-      - master
+      - main  # Change to the branch you want to monitor
   pull_request:
     branches:
-      - master
+      - main  # Change to the branch you want to monitor
 
 jobs:
   cypress:
@@ -16,39 +16,37 @@ jobs:
       api:
         image: node:18
         ports:
-          - 4000:4000
-        working-directory: /app/apps/api
-        volumes:
-          - ./apps/api:/app
-        options: >  
+          - 4000:4000  # Port where the API will be exposed
+        env:
+          NODE_ENV: development
+        options: >  # Health check options
           --health-cmd="npm test" --health-interval=10s --health-timeout=5s --health-retries=5
-        command: >
-          sh -c "npm install && npm run dev"
 
       web:
         image: node:18
         ports:
-          - 3000:3000
-        working-directory: /app/apps/web
-        volumes:
-          - ./apps/web:/app
-        options: >  
+          - 3000:3000  # Port where the web app will be exposed
+        env:
+          NODE_ENV: development
+        options: >  # Health check options
           --health-cmd="npm test" --health-interval=10s --health-timeout=5s --health-retries=5
-        command: >
-          sh -c "npm install && npm run dev"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies for Cypress
+      - name: Install dependencies for API
         run: |
-          cd ./apps/api
-          npm install
-          cd ../web
-          npm install
-          cd ../../
+          cd apps/api
           npm install
 
+      - name: Install dependencies for Web
+        run: |
+          cd ../web
+          npm install
+
+      - name: Install Cypress dependencies
+        run: npm install
+
       - name: Run Cypress tests
-        run: npx cypress run --headed --
+        run: npx cypress run --headed --no-sandbox
