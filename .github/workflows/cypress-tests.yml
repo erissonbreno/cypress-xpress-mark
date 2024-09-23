@@ -36,7 +36,7 @@ jobs:
 
       - name: Run API and Web services
         run: |
-          docker run -d --name api -p 4000:4000 -e NODE_ENV=development node:18
+          docker run -d --name api -p 3333:3333 -e NODE_ENV=development node:18
           docker run -d --name web -p 3000:3000 -e NODE_ENV=development node:18
 
       - name: Wait for the server to be ready
