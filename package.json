@@ -1,0 +1,12 @@
+{
+  "name": "cypress-xpress-mark",
+  "version": "1.0.0",
+  "description": "E2E Testing for Mark-L",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@faker-js/faker": "^9.0.1",
+    "cypress": "^13.14.2",
+    "typescript": "^5.6.2"
+  }
+}
