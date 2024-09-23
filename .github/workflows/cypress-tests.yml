@@ -43,4 +43,4 @@ jobs:
           docker run -d --name web -p 3000:3000 -e NODE_ENV=development node:18
 
       - name: Run Cypress tests
-        run: npx cypress run --headed --no-sandbox
+        run: npx cypress run
