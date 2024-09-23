@@ -3,37 +3,23 @@ name: Cypress Tests
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   cypress:
     runs-on: ubuntu-latest
 
-    services:
-      api:
-        image: node:18
-        ports:
-          - 4000:4000  # Port where the API will be exposed
-        env:
-          NODE_ENV: development
-        options: >  # Health check options
-          --health-cmd="npm test" --health-interval=10s --health-timeout=5s --health-retries=5
-
-      web:
-        image: node:18
-        ports:
-          - 3000:3000  # Port where the web app will be exposed
-        env:
-          NODE_ENV: development
-        options: >  # Health check options
-          --health-cmd="npm test" --health-interval=10s --health-timeout=5s --health-retries=5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Remove old containers
+        run: |
+          docker ps -aq --filter "name=api" | xargs --no-run-if-empty docker rm -f
+          docker ps -aq --filter "name=web" | xargs --no-run-if-empty docker rm -f
 
       - name: Install dependencies for API
         run: |
@@ -47,6 +33,11 @@ jobs:
 
       - name: Install Cypress dependencies
         run: npm install
+
+      - name: Run API and Web services
+        run: |
+          docker run -d --name api -p 4000:4000 -e NODE_ENV=development node:18
+          docker run -d --name web -p 3000:3000 -e NODE_ENV=development node:18
 
       - name: Run Cypress tests
         run: npx cypress run --headed --no-sandbox
