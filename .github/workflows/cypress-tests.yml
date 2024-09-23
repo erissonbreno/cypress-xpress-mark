@@ -16,11 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Remove old containers
-        run: |
-          docker ps -aq --filter "name=api" | xargs --no-run-if-empty docker rm -f
-          docker ps -aq --filter "name=web" | xargs --no-run-if-empty docker rm -f
-
       - name: Install dependencies for API
         run: |
           cd apps/api
@@ -31,23 +26,25 @@ jobs:
           cd apps/web
           npm install
 
-      - name: Install Cypress dependencies
-        run: npm install
-
-      - name: Run API and Web services
+      - name: Start API
         run: |
-          docker run -d --name api -p 3333:3333 -e NODE_ENV=development node:18
-          docker run -d --name web -p 3000:3000 -e NODE_ENV=development node:18
+          cd apps/api
+          nohup npm run dev &  
 
-      - name: Wait for the server to be ready
+      - name: Start Web
         run: |
-          for i in {1..10}; do
+          cd apps/web
+          nohup npm run dev &  
+
+      - name: Wait for the Web to be ready
+        run: |
+          for i in {1..20}; do
             if curl -s http://localhost:3000 > /dev/null; then
-              echo "Server is up!"
+              echo "Web is up!"
               break
             else
-              echo "Waiting for the server to be up..."
-              sleep 5
+              echo "Waiting for the Web to be up... Attempt $i"
+              sleep 10
             fi
           done
 
