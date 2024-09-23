@@ -16,9 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: List directory structure
-        run: ls -R
-
       - name: Remove old containers
         run: |
           docker ps -aq --filter "name=api" | xargs --no-run-if-empty docker rm -f
@@ -41,6 +38,18 @@ jobs:
         run: |
           docker run -d --name api -p 4000:4000 -e NODE_ENV=development node:18
           docker run -d --name web -p 3000:3000 -e NODE_ENV=development node:18
+
+      - name: Wait for the server to be ready
+        run: |
+          for i in {1..10}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "Server is up!"
+              break
+            else
+              echo "Waiting for the server to be up..."
+              sleep 5
+            fi
+          done
 
       - name: Run Cypress tests
         run: npx cypress run
