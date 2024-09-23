@@ -49,4 +49,6 @@ jobs:
           done
 
       - name: Run Cypress tests
+        env:
+          NODE_OPTIONS: '--loader ts-node/esm'
         run: npx cypress run
